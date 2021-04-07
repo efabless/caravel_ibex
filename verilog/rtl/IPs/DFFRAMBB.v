@@ -103,6 +103,10 @@ module DEC1x2 (
 endmodule
 
 module DEC2x4 (
+`ifdef USE_POWER_PINS
+    input VPWR,
+    input VGND,
+`endif
     input           EN,
     input   [1:0]   A,
     output  [3:0]   SEL
@@ -157,6 +161,10 @@ module DEC6x64 (
 endmodule
 
 module MUX2x1_32(
+`ifdef USE_POWER_PINS
+    input VPWR,
+    input VGND,
+`endif
     input   [31:0]      A0, A1,
     input   [0:0]       S,
     output  [31:0]      X
@@ -165,6 +173,10 @@ module MUX2x1_32(
 endmodule
 
 module MUX4x1_32(
+`ifdef USE_POWER_PINS
+    input VPWR,
+    input VGND,
+`endif
     input   [31:0]      A0, A1, A2, A3,
     input   [1:0]       S,
     output  [31:0]      X

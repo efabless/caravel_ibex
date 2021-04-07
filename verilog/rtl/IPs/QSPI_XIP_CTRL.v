@@ -110,10 +110,6 @@ module QSPI_XIP_CTRL(
     DMC_32x16HC
 `endif
                 CACHE ( 
-`ifdef USE_POWER_PINS
-			.vccd1(vccd1),
-			.vssd1(vssd1),
-`endif
                 	 .clk(HCLK), .rst_n(HRESETn), 
                         .A(last_HADDR[23:0]), .A_h(HADDR[23:0]), .Do(c_datao), .hit(c_hit), 
                         .line(c_line), .wr(c_wr[1]) );
