@@ -1,0 +1,19 @@
+---
+project:
+  description: "An example project that utilizes caravel user space for an ibex based SoC."
+  foundry: "SkyWater"
+  git_url: "https://github.com/efabless/caravel_ibex.git"
+  organization: "Efabless"
+  organization_url: "http://efabless.com"
+  owner: "Efabless"
+  process: "SKY130"
+  project_name: "caravel_ibex"
+  project_id: "00000000"
+  tags:
+    - "Open MPW"
+    - "Test Harness"
+  category: "Test Harness"
+  top_level_netlist: "caravel/verilog/gl/caravel.v"
+  user_level_netlist: "verilog/gl/user_project_wrapper.v"
+  version: "1.00"
+  cover_image: "docs/source/_static/caravel_harness.png"
