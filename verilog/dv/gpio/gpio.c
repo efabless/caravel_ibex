@@ -13,7 +13,7 @@ int main(){
     gpio_set_dir(0x0000);
 
     // GPIO
-    uart_puts (0, "GPIO Test: ", 11);
+    uart_puts (0, "Monitor: GPIO Test ", 19);
     gpio_write(0x1555);
     DELAY(100);
     int gpio_data = gpio_read();
@@ -22,6 +22,7 @@ int main(){
     else
         uart_puts(0,"Failed!\n", 8);
 
+    DELAY(20);
     // Done!
     uart_puts(0, "Done!\n\n", 7);
     DELAY(20);

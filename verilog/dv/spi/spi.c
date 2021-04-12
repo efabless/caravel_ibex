@@ -36,7 +36,7 @@ int main(){
     spi_init(0, 0,0,20);
     
     // SPI
-    uart_puts (0, "SPI Test: ", 9);
+    uart_puts (0, "Monitor: SPI Test ", 18);
     M23LC_write_byte(0, 0, 0xA5);
     unsigned int spi_data = M23LC_read_byte(0, 0);
     DELAY(100);

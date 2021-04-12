@@ -5,14 +5,14 @@
     `define NO_HC_CACHE
     `include "DFFRAM_beh.v"
 `else
-	`ifndef GL
+	`ifndef GL_UA
 		`include "IPs/DFFRAM_4K.v"
 		`include "IPs/DFFRAMBB.v"
 		`include "IPs/DMC_32x16HC.v"
 	`endif
 `endif
 
-`ifdef GL
+`ifdef GL_UA
 	`default_nettype wire
 	`include "gl/apb_sys_0.v"
 	`include "gl/DFFRAM_4K.v"

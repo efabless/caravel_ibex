@@ -16,7 +16,7 @@ int main(){
     gpio_set_dir(0x0000);
     
     // PWM
-    uart_puts (0, "PWM Test: ", 10);
+    uart_puts (0, "PWM Test Start\n", 15);
     pwm_init(0, 250, 99, 5);
  	pwm_enable(0);
     DELAY(300);

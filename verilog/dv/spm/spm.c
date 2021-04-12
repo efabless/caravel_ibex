@@ -20,7 +20,7 @@ int main(){
     gpio_set_dir(0x0000);
 
     // External SPM Accelerator
-    uart_puts (0, "SPM Test: ", 9);
+    uart_puts (0, "Monitor SPM Test: ", 18);
     int factorial = fact(5);
     DELAY(100);
     if(factorial==120)

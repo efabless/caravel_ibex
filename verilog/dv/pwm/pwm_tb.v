@@ -82,8 +82,20 @@ module pwm_tb;
 		RSTB <= 1'b1;	    // Release reset
 		#(`SOC_SETUP_TIME);
 		wait(mprj_io[7:0] == 8'hA4);
-		if (pwm0_edge_count == 7) $display("Passed");
-		else $display("Failed");
+		if (pwm0_edge_count == 7) begin
+			`ifdef GL_UA
+				$display("Monitor: PWM Test (GL) Passed.");
+			`else
+				$display("Monitor: PWM Test (RTL) Passed.");
+			`endif
+		end 
+		else begin
+			`ifdef GL
+				$display("Monitor: PWM Test (GL) Failed.");
+			`else
+				$display("Monitor: PWM Test (RTL) Failed.");
+			`endif	
+		end
 	    $finish;
 	end
 
