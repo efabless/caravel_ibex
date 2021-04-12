@@ -5,14 +5,15 @@
     `define NO_HC_CACHE
     `include "DFFRAM_beh.v"
 `else
-	`ifndef GL_UA
+	`ifndef GL
 		`include "IPs/DFFRAM_4K.v"
 		`include "IPs/DFFRAMBB.v"
 		`include "IPs/DMC_32x16HC.v"
 	`endif
 `endif
 
-`ifdef GL_UA
+`ifdef GL
+	`default_nettype wire
 	`include "gl/apb_sys_0.v"
 	`include "gl/DFFRAM_4K.v"
 	`include "gl/DMC_32x16HC.v"
@@ -20,18 +21,15 @@
 	`include "gl/user_project_wrapper.v"
 `else
 	`include "AHB_sys_0/AHBlite_sys_0.v"
-
 	`include "AHB_sys_0/AHBlite_bus0.v"
 	`include "AHB_sys_0/AHBlite_GPIO.v"
 	`include "AHB_sys_0/AHBlite_db_reg.v"
-
 	`include "AHB_sys_0/APB_sys_0/APB_WDT32.v"
 	`include "AHB_sys_0/APB_sys_0/APB_TIMER32.v"
 	`include "AHB_sys_0/APB_sys_0/APB_PWM32.v"
 	`include "AHB_sys_0/APB_sys_0/AHB_2_APB.v"
 	`include "AHB_sys_0/APB_sys_0/APB_bus0.v"
 	`include "AHB_sys_0/APB_sys_0/APB_sys_0.v"
-
 	`include "IPs/TIMER32.v"
 	`include "IPs/PWM32.v"
 	`include "IPs/WDT32.v"
@@ -42,11 +40,9 @@
 	`include "IPs/APB_SPI.v"
 	`include "IPs/APB_I2C.v"
 	`include "IPs/AHBSRAM.v"
-	`include "acc/AHB_SPM.v"
-
 	`include "IPs/QSPI_XIP_CTRL.v"
 	`include "IPs/RAM_3Kx32.v"
-
+	`include "acc/AHB_SPM.v"
 	`include "ibex/ibex_alu.v"
 	`include "ibex/ibex_branch_predict.v"
 	`include "ibex/ibex_compressed_decoder.v"

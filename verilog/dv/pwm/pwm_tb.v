@@ -17,18 +17,17 @@
 
 `timescale 1 ns / 1 ps
 
-`define IBEX_TEST_FILE     "ibex_ibex.hex" 
-`define CARAVEL_TEST_FILE  "ibex.hex" 
-`define SIM_TIME           8000_000
+`define IBEX_TEST_FILE     "ibex_pwm.hex" 
+`define CARAVEL_TEST_FILE  "caravel_pwm.hex" 
 `define SIM_LEVEL          0
-`define SOC_SETUP_TIME     800*2001
+`define SOC_SETUP_TIME     200*2001
 
 `include "uprj_netlists.v"
 `include "caravel_netlists.v"
 
 `include "spiflash.v"
 
-module ibex_tb;
+module pwm_tb;
 	reg clock;
     reg RSTB;
 	reg power1, power2;
@@ -62,6 +61,11 @@ module ibex_tb;
         .HOLD_N_SIO3(SPI_HOLD)
 	);
 
+	reg [7:0] pwm0_edge_count = 0;
+	always @ (posedge mprj_io[36])
+		pwm0_edge_count = pwm0_edge_count + 1;
+
+
 	initial begin
 		// Load the application into the Ibex flash memory
 		#1  $readmemh(`IBEX_TEST_FILE, flash.I0.memory);
@@ -71,13 +75,15 @@ module ibex_tb;
 	end
 
 	initial begin
-		$dumpfile("ibex.vcd");
-		$dumpvars(0, ibex_tb);
+		$dumpfile("pwm.vcd");
+		$dumpvars(0, pwm_tb);
 		RSTB <= 1'b0;
 		#2000;
 		RSTB <= 1'b1;	    // Release reset
 		#(`SOC_SETUP_TIME);
-		#(`SIM_TIME);
+		wait(mprj_io[7:0] == 8'hA4);
+		if (pwm0_edge_count == 7) $display("Passed");
+		else $display("Failed");
 	    $finish;
 	end
 

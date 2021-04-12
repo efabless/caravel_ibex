@@ -63,30 +63,33 @@ module user_project_wrapper (
     /*--------------------------------------*/
     /* User project is instantiated  here   */
     /*--------------------------------------*/
+    // Flash Pads
     assign io_oeb[18] = 1'b0; 
     assign io_oeb[19] = 1'b0; 
 
+    // UART Pads
     assign io_oeb[20] = 1'b1; 
     assign io_oeb[21] = 1'b0; 
     assign io_oeb[22] = 1'b1; 
     assign io_oeb[23] = 1'b0; 
 
+    // SPI_0 Pads
     assign io_oeb[24] = 1'b1; 
     assign io_oeb[25] = 1'b0; 
     assign io_oeb[26] = 1'b0; 
     assign io_oeb[27] = 1'b0; 
 
+    // SPI_1 Pads
     assign io_oeb[28] = 1'b1; 
     assign io_oeb[29] = 1'b0; 
     assign io_oeb[30] = 1'b0; 
     assign io_oeb[31] = 1'b0; 
 
-    assign io_oeb[30] = 1'b0; 
-    assign io_oeb[31] = 1'b0; 
+    // PWM Pads
+    assign io_oeb[36] = 1'b0; 
+    assign io_oeb[37] = 1'b0;
 
-    // check csb pin -- io[3]
-    wire fdoeb;
-    
+    wire fdoeb;    
     assign io_oeb[17:14] = {4{~fdoeb}};
 
     soc_core core(

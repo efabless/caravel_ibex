@@ -17,12 +17,6 @@
 
 #include "../../../caravel/verilog/dv/caravel/defs.h"
 
-/*
-	IO Test:
-		- Configures MPRJ lower 8-IO pins as outputs
-		- Observes counter value through the MPRJ lower 8 IO pins (in the testbench)
-*/
-
 void main()
 {
 	/* 

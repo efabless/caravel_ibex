@@ -19,7 +19,7 @@
 .SUFFIXES:
 .SILENT: clean all
 
-PATTERNS = ibex
+PATTERNS = gpio pwm spi spm
 
 all:  ${PATTERNS}
 	for i in ${PATTERNS}; do \

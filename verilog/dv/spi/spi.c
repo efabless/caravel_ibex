@@ -8,21 +8,6 @@ void IRQ() {
     gpio_write(0x0099);        
 }
 
-int fact(int n){
-    int f = 1;
-    for(int i=2; i<=n; i++)
-        f = f * i;
-    return f;
-}
-
-int strlen(char *s){
-    int i=0;
-    while (*s){
-        i++;
-    }
-    return i;
-}
-
 void M23LC_write_byte(int n, unsigned int addr, unsigned int data){
   spi_start(n);
   spi_write(n, 0x2);
@@ -47,31 +32,9 @@ unsigned char M23LC_read_byte(int n, unsigned short addr){
 int main(){
     // Initialization
     uart_init (0, 0);
-    gpio_set_dir(0x00FF);
+    gpio_set_dir(0x0000);
     spi_init(0, 0,0,20);
     
-    // Start the test
-    uart_puts (0, "Hello World!\n", 13);
-    
-    // GPIO
-    uart_puts (0, "GPIO Test: ", 11);
-    gpio_write(0x0055);
-    DELAY(100);
-    int gpio_data = gpio_read();
-    if((gpio_data >> 8) == 0x55)
-        uart_puts(0,"Passed!\n", 8);
-    else
-        uart_puts(0,"Failed!\n", 8);
-    
-    // External SPM Accelerator
-    uart_puts (0, "SPM Test: ", 9);
-    int factorial = fact(5);
-    DELAY(100);
-    if(factorial==120)
-        uart_puts(0,"Passed!\n", 8);
-    else 
-        uart_puts(0,"Failed!\n", 8);
-
     // SPI
     uart_puts (0, "SPI Test: ", 9);
     M23LC_write_byte(0, 0, 0xA5);
@@ -82,17 +45,11 @@ int main(){
     else 
         uart_puts(0,"Failed!\n", 8);
 
-    // PWM
-    pwm_init(0, 250, 99, 5);
- 	pwm_enable(0);
-    DELAY(300);
-    pwm_disable(0); 
-
-    // Some Delay
-    DELAY(100);
-   
     // Done!
     uart_puts(0, "Done!\n\n", 7);
+    DELAY(20);
+    // Flag end of test
+    gpio_write(0x00A4);
     return 0;
 }
 
