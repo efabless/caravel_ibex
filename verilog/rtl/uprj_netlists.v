@@ -1,5 +1,7 @@
 `include "defines.v"
 
+`define USE_POWER_PINS
+
 `ifdef FAST
 	`define USE_DFFRAM_BEH
     `define NO_HC_CACHE
