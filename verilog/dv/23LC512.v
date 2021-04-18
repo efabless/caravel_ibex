@@ -74,6 +74,8 @@
 // **                                                                                                   **
 // *******************************************************************************************************
 
+// SPDX-FileCopyrightText: 2014 YOUNG ENGINEERING
+// SPDX-License-Identifier: YOUNG ENGINEERING
 
 `timescale 1ns/10ps
 

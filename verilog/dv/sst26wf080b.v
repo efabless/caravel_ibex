@@ -64,6 +64,9 @@ reg SEC;				// status[5] 1-bit Lockout Security ID, non-volitable
 ------------------------------------------------------------------------------------
 */
 
+// SPDX-FileCopyrightText: 2013 Silicon Storage Technology
+// SPDX-License-Identifier:
+
 `timescale 1ns / 10 ps
 module sst26wf080b(SCK,SIO,CEb);
 input SCK;              // device clock

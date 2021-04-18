@@ -1,27 +1,43 @@
+// SPDX-FileCopyrightText: 2020 Mohamed Shalan
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
+
+
 `timescale 1ns/1ns
-    module AHBlite_db_reg (
-    // AHB Interface
-    // clock and reset 
-    input  wire        HCLK,    
-    //input  wire        HCLKG,   // Gated clock
-    input  wire        HRESETn, // Reset
+module AHBlite_db_reg (
+// AHB Interface
+// clock and reset 
+input  wire        HCLK,    
+//input  wire        HCLKG,   // Gated clock
+input  wire        HRESETn, // Reset
 
-    // input ports
-    input   wire        HSEL,    // Select
-    input   wire [23:2] HADDR,   // Address
-    input   wire        HREADY, // 
-    input   wire        HWRITE,  // Write control
-    input   wire [1:0]  HTRANS,    // AHB transfer type
-    input   wire [2:0]  HSIZE,    // AHB hsize
-    input   wire [31:0] HWDATA,  // Write data
+// input ports
+input   wire        HSEL,    // Select
+input   wire [23:2] HADDR,   // Address
+input   wire        HREADY, // 
+input   wire        HWRITE,  // Write control
+input   wire [1:0]  HTRANS,    // AHB transfer type
+input   wire [2:0]  HSIZE,    // AHB hsize
+input   wire [31:0] HWDATA,  // Write data
 
-    // output ports
-    output wire [31:0] HRDATA,  // Read data
-    output wire        HREADYOUT,  // Device ready
-    output wire [1:0]   HRESP,
-		// IP Interface
-	// db_reg register/fields
-	output [3:0] db_reg
+// output ports
+output wire [31:0] HRDATA,  // Read data
+output wire        HREADYOUT,  // Device ready
+output wire [1:0]   HRESP,
+// IP Interface
+// db_reg register/fields
+output [3:0] db_reg
 
 
 );
