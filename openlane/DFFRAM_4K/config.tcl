@@ -33,7 +33,7 @@ set ::env(CLOCK_PORT) 						"CLK"
 set ::env(CLOCK_TREE_SYNTH) 				0
 
 set ::env(VDD_NETS)			                "vccd1"
-set ::env(GND_NETS)                                    "vssd1"
+set ::env(GND_NETS)                         "vssd1"
 
 set ::env(FP_PIN_ORDER_CFG) 				$::env(DESIGN_DIR)/pin_order.cfg
 set ::env(FP_SIZING) 					absolute

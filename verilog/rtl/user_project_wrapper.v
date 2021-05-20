@@ -29,8 +29,6 @@
  *-------------------------------------------------------------
  */
 
-`define MPRJ_IO_PADS 38
-
 module user_project_wrapper (
 `ifdef USE_POWER_PINS
     inout vdda1,	// User area 1 3.3V supply
@@ -58,7 +56,7 @@ module user_project_wrapper (
     // Logic Analyzer Signals
     input  [127:0] la_data_in,
     output [127:0] la_data_out,
-    input  [127:0] la_oen,
+    input  [127:0] la_oenb,
 
     // IOs
     input  [`MPRJ_IO_PADS-1:0] io_in,
@@ -68,11 +66,14 @@ module user_project_wrapper (
     // Analog (direct connection to GPIO pad---use with caution)
     // Note that analog I/O is not available on the 7 lowest-numbered
     // GPIO pads, and so the analog_io indexing is offset from the
-    // GPIO indexing by 7.
-    inout [`MPRJ_IO_PADS-8:0] analog_io,
+    // GPIO indexing by 7 (also upper 2 GPIOs do not have analog_io).
+    inout [`MPRJ_IO_PADS-10:0] analog_io,
 
     // Independent clock (on independent integer divider)
-    input   user_clock2
+    input   user_clock2,
+
+    // User maskable interrupt signals
+    output [2:0] user_irq
 );
 
     /*--------------------------------------*/
@@ -107,6 +108,9 @@ module user_project_wrapper (
     wire fdoeb;    
     assign io_oeb[17:14] = {4{~fdoeb}};
 
+    // IRQ
+    assign user_irq = 3'b000;
+    
     soc_core core(
     `ifdef USE_POWER_PINS
         .vccd1(vccd1),

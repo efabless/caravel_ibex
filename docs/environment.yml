@@ -1,4 +1,3 @@
-<!---
 # SPDX-FileCopyrightText: 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +13,11 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
--->
-# Caravel Ibex DV
 
-The directory includes four tests for the caravel-ibex SoC: 
-
-### GPIO Test 
-
-### PWM Test
-  
-### SPI Test
- 
-### SPM Test
+name: caravel-docs
+channels:
+- defaults
+dependencies:
+- python>=3.8
+- pip:
+  - -r file:requirements.txt
