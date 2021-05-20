@@ -1,4 +1,4 @@
-<!---
+#!/bin/bash
 # SPDX-FileCopyrightText: 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 # SPDX-License-Identifier: Apache-2.0
--->
-# Caravel Ibex DV
 
-The directory includes four tests for the caravel-ibex SoC: 
+export UPRJ_ROOT=$(pwd)
+export CARAVEL_ROOT=$(pwd)/caravel
+cd ..
+export PDK_ROOT=$(pwd)/pdks
+export IMAGE_NAME=efabless/openlane:$OPENLANE_TAG
 
-### GPIO Test 
+cd $UPRJ_ROOT
 
-### PWM Test
-  
-### SPI Test
- 
-### SPM Test
+LOG_FILE=out.log
+docker run -v $UPRJ_ROOT:$UPRJ_ROOT -v $PDK_ROOT:$PDK_ROOT -v $CARAVEL_ROOT:$CARAVEL_ROOT -e UPRJ_ROOT=$UPRJ_ROOT -e PDK_ROOT=$PDK_ROOT -e CARAVEL_ROOT=$CARAVEL_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME bash -c "cd $UPRJ_ROOT; export USER_ID=$USER_ID; make xor-wrapper | tee $LOG_FILE;"
+
+cnt=$(grep -oP '(?<=Total XOR differences = )[0-9]+' $LOG_FILE)
+
+echo "Total XOR differences = $cnt"
+
+if [[ $cnt -ne 0 ]]; then 
+    exit 2; 
+fi
+
+exit 0

@@ -108,7 +108,7 @@ void main()
 		la[26]   | HResetn | 1'b1
 	*/
 
-	reg_la0_ena = 0x00000000;  
+	reg_la0_oenb = reg_la0_iena = 0x00000000;  
 	reg_la0_data = 0x4000064;
 
 }

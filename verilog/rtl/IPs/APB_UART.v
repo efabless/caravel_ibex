@@ -182,7 +182,7 @@ module APB_UART(
     .empty(tx_empty),
     .full(tx_full),
     .r_data(tx_data[7:0]),
-    .level(tx_level)
+    .level(tx_level[3:0])
   );
   
   FIFO uFIFO_RX(
@@ -194,7 +194,7 @@ module APB_UART(
     .empty(rx_empty),
     .full(rx_full),
     .r_data(uart_rdata[7:0]),
-    .level(rx_level)
+    .level(rx_level[3:0])
   );
   
   UART_RX uUART_RX(

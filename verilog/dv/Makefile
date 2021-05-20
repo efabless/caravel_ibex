@@ -28,5 +28,6 @@ clean:  ${PATTERNS}
 	for i in ${PATTERNS}; do \
 		( cd $$i && make clean ) ; \
 	done
-
+	rm -rf *.log
+	
 .PHONY: clean all

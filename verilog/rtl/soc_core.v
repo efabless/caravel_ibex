@@ -36,7 +36,7 @@ module soc_core (
 	output wire [0: 0] 	fsclk_Sys0_S0,
 	output wire [0: 0] 	fcen_Sys0_S0,
 
-	input wire [15: 0] GPIOIN_Sys0_S2,
+	input  wire [15: 0] GPIOIN_Sys0_S2,
 	output wire [15: 0] GPIOOUT_Sys0_S2,
 	output wire [15: 0] GPIOPU_Sys0_S2,
 	output wire [15: 0] GPIOPD_Sys0_S2,
