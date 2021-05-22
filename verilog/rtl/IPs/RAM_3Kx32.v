@@ -55,9 +55,9 @@ module RAM_3Kx32 (
 `ifdef USE_DFFRAM_BEH
 	DFFRAM_beh 
 `else
-	DFFRAM_4K
+	DFFRAM_1Kx32  
 `endif
-            #(.COLS(4)) RAM (
+     #(.WSIZE(`DFFRAM_SIZE)) RAM (
                 .CLK(CLK),
                 .WE(WE),
                 .EN(_EN_[gi]),
@@ -75,13 +75,14 @@ module RAM_3Kx32 (
     `endif
         .X(A_buf), .A(A[11:10]));
 
-    MUX4x1_32 MUX ( 
+    MUX4x1_ MUX ( 
     `ifdef USE_POWER_PINS
         .VPWR(vccd1),
         .VGND(vssd1),
     `endif
         .A0(_Do_[0]), .A1(_Do_[1]), .A2(_Do_[2]), .A3(32'b0), .S(A_buf), .X(Do_pre) );
-    DEC2x4 DEC ( 
+        
+    DEC2x4_ DEC ( 
      `ifdef USE_POWER_PINS
         .VPWR(vccd1),
         .VGND(vssd1),

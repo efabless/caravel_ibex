@@ -15,18 +15,18 @@
 
 set script_dir [file dirname [file normalize [info script]]]
 
+### User config
 set ::env(DESIGN_NAME) ibex_wrapper
+# Number of threads during routing
+set ::env(ROUTING_CORES)   10
+# Disable streaming GDS using klayout
+set ::env(RUN_KLAYOUT) 0
+
+### Design config
 set ::env(DESIGN_IS_CORE) 0
 
-set ::env(CLOCK_PORT)      "HCLK"
-set ::env(CLOCK_NET)       "HCLK"
-set ::env(CLOCK_PERIOD)    "8"
-
-set ::env(ROUTING_CORES)   10
-
-set ::env(SYNTH_READ_BLACKBOX_LIB) 1
-
 set ::env(VERILOG_FILES) "\
+	$script_dir/../../verilog/rtl/uprj_defines.v
    $script_dir/../../verilog/rtl/ibex/ibex_core.v
    $script_dir/../../verilog/rtl/ibex/ibex_pmp.v
    $script_dir/../../verilog/rtl/ibex/ibex_controller.v
@@ -53,20 +53,32 @@ set ::env(VERILOG_FILES) "\
    $script_dir/../../verilog/rtl/ibex/ibex_fetch_fifo.v
    $script_dir/../../verilog/rtl/ibex/ibex_wrapper.v"
 
+### Clock Config
+set ::env(CLOCK_PORT)      "HCLK"
+set ::env(CLOCK_NET)       "HCLK"
+set ::env(CLOCK_PERIOD)    "18"
+
+### Synthesis	
+set ::env(SYNTH_READ_BLACKBOX_LIB) 1
+
+### Power Nets
 set ::env(VDD_NETS)                           "vccd1"
 set ::env(GND_NETS)                           "vssd1"
 
+### Floorplan
 set ::env(FP_PIN_ORDER_CFG) 			$::env(DESIGN_DIR)/pin_order.cfg
-
 set ::env(FP_SIZING)                absolute
 set ::env(DIE_AREA)                 "0 0 600 800"
-
-set ::env(PL_TARGET_DENSITY)        0.7
-
 set ::env(CELL_PAD)                 0
 
+### Placement
+set ::env(PL_TARGET_DENSITY)        0.7
+
+### Routing
+# Add routing obstruction on met5 to avoid having shorts on the top level where met5 power straps intersect with the macro
 set ::env(GLB_RT_OBS)               "met5 $::env(DIE_AREA)"
 set ::env(GLB_RT_MAXLAYER)          5
 set ::env(GLB_RT_ADJUSTMENT)        0.25
- 	
+
+### Diode Insertion
 set ::env(DIODE_INSERTION_STRATEGY) "4"

@@ -1,17 +1,22 @@
-// SPDX-FileCopyrightText: 2020 Mohamed Shalan
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// SPDX-License-Identifier: Apache-2.0
+/*
+     _  _ ___   _   _  _   ___ _____ 
+    | \| | __| | | | |/_\ | _ \_   _|
+    | .` |__ \ | |_| / _ \|   / | |  
+    |_|\_|___/  \___/_/ \_\_|_\ |_|  	
+	Copyright 2020 Mohamed Shalan
+	
+	Licensed under the Apache License, Version 2.0 (the "License"); 
+	you may not use this file except in compliance with the License. 
+	You may obtain a copy of the License at:
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, 
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and 
+	limitations under the License.
+*/
 
 
 /*
@@ -34,8 +39,8 @@
   0C        IM: 0: All, 1:~TX_full, 2:~RX_Empty, 3:tx_less_threshold, 4: rx_more_threshold (RW)
 */
 
-`timescale 1ns/1ps
-`default_nettype none
+`timescale          1ns/1ps
+`default_nettype    none
 
 // `define VERIFY
 
@@ -47,30 +52,30 @@
 `define   TXFIFOTR_ADDR   8'h10
 `define   RXFIFOTR_ADDR   8'h14
 
-
-
-module APB_UART(
+module APB_UART #(parameter FDEPTH=16)
+(
     // APB Bus Interface
-    // APB Inputs
-    input wire        PCLK,
-    input wire        PRESETn,
-    input wire        PWRITE,
-    input wire [31:0] PWDATA,
-    input wire [31:0] PADDR,
-    input wire        PENABLE,
-    input wire        PSEL,
+    input wire          PCLK,
+    input wire          PRESETn,
+
+    input wire          PWRITE,
+    input wire [31:0]   PWDATA,
+    input wire [31:0]   PADDR,
+    input wire          PENABLE,
+    input wire          PSEL,
+    
     // APB Outputs
-    output wire       PREADY,
-    output wire [31:0]PRDATA,
+    output wire         PREADY,
+    output wire [31:0]  PRDATA,  
 
-    // Serial Port
-    input wire        RsRx,  
-    output wire       RsTx,  
+    output              PIRQ,
+    // Serial Port Pins
+    input wire          Rx,  
+    output wire         Tx
 
-    // UART Interrupt
-    output wire       uart_irq  //Interrupt
 );
 
+    localparam FAWIDTH = $clog2(FDEPTH);
 
     // I/O Registers
     reg [1:0] STATUS;
@@ -108,8 +113,8 @@ module APB_UART(
     wire b_tick;
   
     // FIFO level
-    wire [7:0] tx_level;
-    wire [7:0] rx_level;
+    wire [FAWIDTH-1:0] tx_level;
+    wire [FAWIDTH-1:0] rx_level;
 
 
     always @(posedge PCLK, negedge PRESETn)
@@ -158,7 +163,7 @@ module APB_UART(
     wire rx_more_threshold = (rx_level > TXFIFOTR);
     
 
-    assign uart_irq = IMASK[0] & (  (~rx_empty & IMASK[2])  | 
+    assign PIRQ     = IMASK[0] & (  (~rx_empty & IMASK[2])  | 
                                     (~tx_full & IMASK[1])    | 
                                     (tx_less_threshold & IMASK[3]) | 
                                     (rx_more_threshold & IMASK[4])
@@ -172,7 +177,7 @@ module APB_UART(
     .baudtick(b_tick)
   );
   
-  FIFO uFIFO_TX 
+  FIFO #(.AWIDTH(FAWIDTH)) uFIFO_TX 
   (
     .clk(PCLK),
     .rst_n(PRESETn),
@@ -185,7 +190,7 @@ module APB_UART(
     .level(tx_level[3:0])
   );
   
-  FIFO uFIFO_RX(
+  FIFO #(.AWIDTH(FAWIDTH)) uFIFO_RX(
     .clk(PCLK),
     .rst_n(PRESETn),
     .rd(uart_rd),
@@ -201,7 +206,7 @@ module APB_UART(
     .clk(PCLK),
     .resetn(PRESETn),
     .b_tick(b_tick),
-    .rx(RsRx),
+    .rx(Rx),
     .rx_done(rx_done),
     .dout(rx_data[7:0])
   );
@@ -213,7 +218,7 @@ module APB_UART(
     .b_tick(b_tick),
     .d_in(tx_data[7:0]),
     .tx_done(tx_done),
-    .tx(RsTx)
+    .tx(Tx)
   );
   
   

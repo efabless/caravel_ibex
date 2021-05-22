@@ -14,16 +14,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 `include "defines.v"
+`include "uprj_defines.v"
 
 `define USE_POWER_PINS
 
 `ifdef FAST
-	`define USE_DFFRAM_BEH
+	// `define USE_DFFRAM_BEH
     `define NO_HC_CACHE
-    `include "DFFRAM_beh.v"
+    // `include "DFFRAM_beh.v"
+	`include "IPs/DFFRAM_1Kx32.v"
+
 `else
 	`ifndef GL_UA
-		`include "IPs/DFFRAM_4K.v"
+		`include "IPs/DFFRAM_1Kx32.v"
 		`include "IPs/DFFRAMBB.v"
 		`include "IPs/DMC_32x16HC.v"
 	`endif
@@ -32,7 +35,7 @@
 `ifdef GL_UA
 	`default_nettype wire
 	`include "gl/apb_sys_0.v"
-	`include "gl/DFFRAM_4K.v"
+	`include "gl/DFFRAM_1Kx32.v"
 	`include "gl/DMC_32x16HC.v"
 	`include "gl/ibex_wrapper.v"
 	`include "gl/user_project_wrapper.v"
@@ -47,6 +50,7 @@
 	`include "AHB_sys_0/APB_sys_0/AHB_2_APB.v"
 	`include "AHB_sys_0/APB_sys_0/APB_bus0.v"
 	`include "AHB_sys_0/APB_sys_0/APB_sys_0.v"
+	`include "IPs/DFFRAMBB.v"
 	`include "IPs/TIMER32.v"
 	`include "IPs/PWM32.v"
 	`include "IPs/WDT32.v"

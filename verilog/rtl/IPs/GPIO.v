@@ -19,17 +19,17 @@
 
 module GPIO (
 		// Wrapper ports
-		output 	wire [15:0] WGPIODIN,
-        input 	wire [15:0] WGPIODOUT,
-        input 	wire [15:0] WGPIOPU,
-        input 	wire [15:0] WGPIOPD,
-        input 	wire [15:0] WGPIODIR,		
+		output 	wire [`GPIO_PINS-1:0] WGPIODIN,
+        input 	wire [`GPIO_PINS-1:0] WGPIODOUT,
+        input 	wire [`GPIO_PINS-1:0] WGPIOPU,
+        input 	wire [`GPIO_PINS-1:0] WGPIOPD,
+        input 	wire [`GPIO_PINS-1:0] WGPIODIR,		
 		// Externals
-        input 	wire [15:0] GPIOIN,
-        output 	wire [15:0] GPIOOUT,
-        output 	wire [15:0] GPIOPU,
-        output 	wire [15:0] GPIOPD,
-        output 	wire [15:0] GPIOOEN		
+        input 	wire [`GPIO_PINS-1:0] GPIOIN,
+        output 	wire [`GPIO_PINS-1:0] GPIOOUT,
+        output 	wire [`GPIO_PINS-1:0] GPIOPU,
+        output 	wire [`GPIO_PINS-1:0] GPIOPD,
+        output 	wire [`GPIO_PINS-1:0] GPIOOEN		
 );
 		assign GPIOOEN 	= WGPIODIR;
 		assign GPIOPU 	= WGPIOPU;

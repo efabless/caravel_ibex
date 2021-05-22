@@ -228,7 +228,7 @@ module DMC_32x16HC (
 
     assign  hit =   c_valid & (c_tag == tag_h);
 
-    MUX4x1_32 MUX ( .A0(data[31:0]), .A1(data[63:32]), .A2(data[95:64] ), .A3(data[127:96]), .S(offset[3:2]), .X(Do) );
+    MUX4x1 MUX ( .A0(data[31:0]), .A1(data[63:32]), .A2(data[95:64] ), .A3(data[127:96]), .S(offset[3:2]), .X(Do) );
 /*
     assign  Do  =   (offset[3:2] == 2'd0) ?  data[31:0] :
                     (offset[3:2] == 2'd1) ?  data[63:32] :

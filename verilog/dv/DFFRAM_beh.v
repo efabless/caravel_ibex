@@ -13,7 +13,7 @@
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
 
-module DFFRAM_beh #( parameter COLS=1)
+module DFFRAM_beh #( parameter WSIZE=4)
 (
     CLK,
     WE,
@@ -22,7 +22,7 @@ module DFFRAM_beh #( parameter COLS=1)
     Do,
     A
 );
-    localparam A_WIDTH = 8+$clog2(COLS);
+    localparam A_WIDTH = 8+$clog2(WSIZE);
 
     input   wire            CLK;
     input   wire    [3:0]   WE;
@@ -31,7 +31,7 @@ module DFFRAM_beh #( parameter COLS=1)
     output  reg     [31:0]  Do;
     input   wire    [(A_WIDTH - 1): 0]   A;
 
-    reg [31:0] RAM[(256*COLS)-1 : 0];
+    reg [31:0] RAM[(256*WSIZE)-1 : 0];
     
     always @(posedge CLK) 
         if(EN) begin

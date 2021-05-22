@@ -13,21 +13,24 @@
 # limitations under the License.
 # SPDX-License-Identifier: Apache-2.0
 
-# Base Configurations. Don't Touch
-# section begin
+### Base Configurations. Don't Touch
+### section begin
 set script_dir [file dirname [file normalize [info script]]]
 
 source $script_dir/../../caravel/openlane/user_project_wrapper_empty/fixed_wrapper_cfgs.tcl
 
 set ::env(DESIGN_NAME) user_project_wrapper
-#section end
+### section end
 
-# User Configurations
+### User Configurations
+# Number of threads during routing
 set ::env(ROUTING_CORES)  16
-set ::env(RUN_KLAYOUT_XOR) 0
+# Disable streaming GDS using klayout
+set ::env(RUN_KLAYOUT) 0
 
 ## Source Verilog Files
 set ::env(VERILOG_FILES) "\
+	$script_dir/../../verilog/rtl/uprj_defines.v
     $script_dir/../../verilog/rtl/acc/AHB_SPM.v
     $script_dir/../../verilog/rtl/IPs/AHBSRAM.v
     $script_dir/../../verilog/rtl/IPs/DFFRAMBB.v
@@ -46,8 +49,6 @@ set ::env(VERILOG_FILES) "\
     $script_dir/../../verilog/rtl/soc_core.v
     $script_dir/../../verilog/rtl/user_project_wrapper.v"
 
-
-
 ## Clock configurations
 set ::env(CLOCK_PORT)   "wb_clk_i"
 set ::env(CLOCK_NET)    "wb_clk_i"
@@ -60,7 +61,6 @@ set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 set ::env(PL_TARGET_DENSITY)     0.05 
 # Increase diamanod search height so that the detailed placement can legalize cells overlapping with big macros
 set ::env(PL_DIAMOND_SEARCH_HEIGHT) 400	
-
 
 set ::env(CELL_PAD)              0
 

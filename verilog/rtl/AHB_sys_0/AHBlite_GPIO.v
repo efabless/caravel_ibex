@@ -35,19 +35,19 @@ output wire [31:0] HRDATA,  // Read data
 output wire        HREADYOUT,  // Device ready
 output wire [1:0]   HRESP,
 
-output wire [15:0] IRQ,
+output wire [`GPIO_PINS-1:0] IRQ,
 
 // IP Interface
 // WGPIODIN register/fields
-input [15:0] WGPIODIN,
+input [`GPIO_PINS-1:0] WGPIODIN,
 // WGPIODOUT register/fields
-output [15:0] WGPIODOUT,
+output [`GPIO_PINS-1:0] WGPIODOUT,
 // WGPIOPU register/fields
-output [15:0] WGPIOPU,
+output [`GPIO_PINS-1:0] WGPIOPU,
 // WGPIOPD register/fields
-output [15:0] WGPIOPD,
+output [`GPIO_PINS-1:0] WGPIOPD,
 // WGPIODIR register/fields
-output [15:0] WGPIODIR
+output [`GPIO_PINS-1:0] WGPIODIR
 );
     reg         IOSEL;
     reg [23:0]  IOADDR;
@@ -103,12 +103,12 @@ output [15:0] WGPIODIR
     wire wr_enable = IOTRANS & IOWRITE & IOSEL;
     
 
-    reg [15:0] WGPIODOUT;
-    reg [15:0] WGPIOPU;
-    reg [15:0] WGPIOPD;
-    reg [15:0] WGPIODIR;
-    reg [15:0] WGPIOIM;
-    wire[15:0] WGPIODIN;
+    reg [`GPIO_PINS-1:0] WGPIODOUT;
+    reg [`GPIO_PINS-1:0] WGPIOPU;
+    reg [`GPIO_PINS-1:0] WGPIOPD;
+    reg [`GPIO_PINS-1:0] WGPIODIR;
+    reg [`GPIO_PINS-1:0] WGPIOIM;
+    wire[`GPIO_PINS-1:0] WGPIODIN;
 
 	// Register: WGPIODOUT
     wire WGPIODOUT_select = wr_enable & (IOADDR[23:2] == 22'h1);
@@ -116,7 +116,7 @@ output [15:0] WGPIODIR
     always @(posedge HCLK or negedge HRESETn)
     begin
         if (~HRESETn)
-            WGPIODOUT <= 16'h0;
+            WGPIODOUT <= {`GPIO_PINS{1'b0}};
         else if (WGPIODOUT_select)
             WGPIODOUT <= HWDATA;
     end
@@ -127,7 +127,7 @@ output [15:0] WGPIODIR
     always @(posedge HCLK or negedge HRESETn)
     begin
         if (~HRESETn)
-            WGPIOPU <= 16'h0;
+            WGPIOPU <= {`GPIO_PINS{1'b0}};
         else if (WGPIOPU_select)
             WGPIOPU <= HWDATA;
     end
@@ -138,7 +138,7 @@ output [15:0] WGPIODIR
     always @(posedge HCLK or negedge HRESETn)
     begin
         if (~HRESETn)
-            WGPIOPD <= 16'h0;
+            WGPIOPD <= {`GPIO_PINS{1'b0}};
         else if (WGPIOPD_select)
             WGPIOPD <= HWDATA;
     end
@@ -149,7 +149,7 @@ output [15:0] WGPIODIR
     always @(posedge HCLK or negedge HRESETn)
     begin
         if (~HRESETn)
-            WGPIODIR <= 16'h0;
+            WGPIODIR <= {`GPIO_PINS{1'b0}};
         else if (WGPIODIR_select)
             WGPIODIR <= HWDATA;
     end
@@ -160,7 +160,7 @@ output [15:0] WGPIODIR
     always @(posedge HCLK or negedge HRESETn)
     begin
         if (~HRESETn)
-            WGPIOIM <= 16'h0;
+            WGPIOIM <= {`GPIO_PINS{1'b0}};
         else if (WGPIOIM_select)
             WGPIOIM <= HWDATA;
     end
@@ -168,12 +168,12 @@ output [15:0] WGPIODIR
     assign IRQ = (~WGPIODIR) & WGPIOIM;
 
     assign HRDATA = 
-      	(IOADDR[23:2] == 22'h0) ? {16'd0,WGPIODIN} : 
-      	(IOADDR[23:2] == 22'h1) ? {16'd0,WGPIODOUT} : 
-      	(IOADDR[23:2] == 22'h2) ? {16'd0,WGPIOPU} : 
-      	(IOADDR[23:2] == 22'h3) ? {16'd0,WGPIOPD} : 
-      	(IOADDR[23:2] == 22'h4) ? {16'd0,WGPIODIR} :
-        (IOADDR[23:2] == 22'h5) ? {16'd0,WGPIOIM} : 
+      	(IOADDR[23:2] == 22'h0) ? {{32-`GPIO_PINS{1'b0}},WGPIODIN} : 
+      	(IOADDR[23:2] == 22'h1) ? {{32-`GPIO_PINS{1'b0}},WGPIODOUT} : 
+      	(IOADDR[23:2] == 22'h2) ? {{32-`GPIO_PINS{1'b0}},WGPIOPU} : 
+      	(IOADDR[23:2] == 22'h3) ? {{32-`GPIO_PINS{1'b0}},WGPIOPD} : 
+      	(IOADDR[23:2] == 22'h4) ? {{32-`GPIO_PINS{1'b0}},WGPIODIR} :
+        (IOADDR[23:2] == 22'h5) ? {{32-`GPIO_PINS{1'b0}},WGPIOIM} : 
 	32'hDEADBEEF;
 	assign HREADYOUT = 1'b1;     // Always ready
 

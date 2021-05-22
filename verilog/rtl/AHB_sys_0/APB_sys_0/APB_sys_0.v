@@ -269,9 +269,9 @@ module apb_sys_0(
             .PRDATA(PRDATA_S0),
             .PENABLE(PENABLE),
 
-            .RsRx(RsRx_S0),   
-            .RsTx(RsTx_S0),   
-            .uart_irq(IRQ[0])
+            .Rx(RsRx_S0),   
+            .Tx(RsTx_S0),   
+            .PIRQ(IRQ[0])
         );
 
         //Digital module # 1
@@ -286,9 +286,9 @@ module apb_sys_0(
             .PRDATA(PRDATA_S1),
             .PENABLE(PENABLE),
 
-            .RsRx(RsRx_S1),   
-            .RsTx(RsTx_S1),   
-            .uart_irq(IRQ[1])
+            .Rx(RsRx_S1),   
+            .Tx(RsTx_S1),   
+            .PIRQ(IRQ[1])
         );
 
         //Digital module # 2

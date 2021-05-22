@@ -36,11 +36,11 @@ module soc_core (
 	output wire [0: 0] 	fsclk_Sys0_S0,
 	output wire [0: 0] 	fcen_Sys0_S0,
 
-	input  wire [15: 0] GPIOIN_Sys0_S2,
-	output wire [15: 0] GPIOOUT_Sys0_S2,
-	output wire [15: 0] GPIOPU_Sys0_S2,
-	output wire [15: 0] GPIOPD_Sys0_S2,
-	output wire [15: 0] GPIOOEN_Sys0_S2,
+	input  wire [`GPIO_PINS-1: 0] GPIOIN_Sys0_S2,
+	output wire [`GPIO_PINS-1: 0] GPIOOUT_Sys0_S2,
+	output wire [`GPIO_PINS-1: 0] GPIOPU_Sys0_S2,
+	output wire [`GPIO_PINS-1: 0] GPIOPD_Sys0_S2,
+	output wire [`GPIO_PINS-1: 0] GPIOOEN_Sys0_S2,
 
 	input wire [0: 0] RsRx_Sys0_SS0_S0,
 	output wire [0: 0] RsTx_Sys0_SS0_S0,
@@ -236,7 +236,7 @@ module soc_core (
 
 		.NMI(NMI),
 		.EXT_IRQ(EXT_IRQ),
-		.IRQ({M2_IRQ[27:16], 4'b0}),
+		.IRQ({M2_IRQ[27:16], 3'b0}), // connect tied to GPIO[0:2]
 		.SYSTICKCLKDIV(SYSTICKCLKDIV)
 
 	);

@@ -47,11 +47,11 @@ module AHBlite_sys_0(
 		//output wire [0: 0] SRAMCS2_S1,
 		//output wire [0: 0] SRAMCS3_S1,
 		output wire [11: 0] SRAMADDR_S1,
-		input wire [15: 0] GPIOIN_S2,
-		output wire [15: 0] GPIOOUT_S2,
-		output wire [15: 0] GPIOPU_S2,
-		output wire [15: 0] GPIOPD_S2,
-		output wire [15: 0] GPIOOEN_S2,
+		input wire [`GPIO_PINS-1: 0] GPIOIN_S2,
+		output wire [`GPIO_PINS-1: 0] GPIOOUT_S2,
+		output wire [`GPIO_PINS-1: 0] GPIOPU_S2,
+		output wire [`GPIO_PINS-1: 0] GPIOPD_S2,
+		output wire [`GPIO_PINS-1: 0] GPIOOEN_S2,
 		output wire [3:0] db_reg,
 		input wire [0: 0] RsRx_SS0_S0,
 		output wire [0: 0] RsTx_SS0_S0,
@@ -85,7 +85,7 @@ module AHBlite_sys_0(
 		output wire [31:0] IRQ
 	);
         
-		//assign IRQ[15:0] = 0;
+		assign IRQ[15:14] = 2'b00;
 
         //Inputs
         wire HSEL_S0, HSEL_S1, HSEL_S2, HSEL_S3, HSEL_S4, HSEL_SS0;
@@ -96,14 +96,14 @@ module AHBlite_sys_0(
         wire  [1:0]   HRESP;
        // wire          IRQ;
         
-		wire [15: 0] WGPIODIN_S2;
-		wire [15: 0] WGPIODOUT_S2;
-		wire [15: 0] WGPIOPU_S2;
-		wire [15: 0] WGPIOPD_S2;
-		wire [15: 0] WGPIODIR_S2;
+		wire [`GPIO_PINS-1: 0] WGPIODIN_S2;
+		wire [`GPIO_PINS-1: 0] WGPIODOUT_S2;
+		wire [`GPIO_PINS-1: 0] WGPIOPU_S2;
+		wire [`GPIO_PINS-1: 0] WGPIOPD_S2;
+		wire [`GPIO_PINS-1: 0] WGPIODIR_S2;
 
 	//Digital module # 0
-	QSPI_XIP_CTRL S0 ( 
+	AHB_FLASH_CTRL S0 ( 
 	`ifdef USE_POWER_PINS
 		.vccd1(vccd1),
 		.vssd1(vssd1),
@@ -184,7 +184,7 @@ module AHBlite_sys_0(
 		.HREADYOUT(HREADY_S2),
 		.HRESP(HRESP), 
 
-		.IRQ(IRQ[15:0])
+		.IRQ(IRQ[13:0])
 	);
 			
 	//AHB Slave # 3

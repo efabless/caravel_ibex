@@ -1,44 +1,38 @@
-// SPDX-FileCopyrightText: 2020 Mohamed Shalan
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// SPDX-License-Identifier: Apache-2.0
-
-
-`timescale 1ns/1ps
-`default_nettype none
-
-// uncomment the following line to use the optimized cache (SKY130A only)
-//`define NO_HC_CACHE
-
 /*
-    AHB-Lite Quad I/O flash reader with 32x16 DM$
-    Intended to be used to execute from an external Quad I/O SPI Flash Memory
+
+	Copyright 2020 Mohamed Shalan
+	
+	Licensed under the Apache License, Version 2.0 (the "License"); 
+	you may not use this file except in compliance with the License. 
+	You may obtain a copy of the License at:
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, 
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and 
+	limitations under the License.
 */
-module QSPI_XIP_CTRL(
-`ifdef USE_POWER_PINS
-	input vccd1,
-	input vssd1,
-`endif
+/*
+    Refactored version of the FLASH Controller
+    Don't change the LINE_SIZE
+*/
+
+module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
+    `ifdef USE_POWER_PINS
+        input wire vccd1,
+        input wire vssd1,
+    `endif
     // AHB-Lite Slave Interface
-    input               HCLK,
-    input               HRESETn,
-    input               HSEL,
+    input wire          HCLK,
+    input wire          HRESETn,
+    input wire          HSEL,
     input wire [31:0]   HADDR,
     input wire [1:0]    HTRANS,
-    //input wire [31:0]   HWDATA,
     input wire          HWRITE,
     input wire          HREADY,
-    output reg          HREADYOUT,
+    output wire         HREADYOUT,
     output wire [31:0]  HRDATA,
 
     // External Interface to Quad I/O
@@ -49,16 +43,70 @@ module QSPI_XIP_CTRL(
     output  wire        douten     
 );
 
-    // Cache wires/buses
-    wire [31:0]     c_datao;
-    wire [127:0]    c_line;
-    wire            c_hit;
-    reg [1:0]       c_wr;
-    wire [23:0]     c_A;
+    wire [23:0]             fr_addr, addr_0;
+    wire                    fr_rd, rd_0;
+    wire                    fr_done, done_0;
+    wire [LINE_SIZE-1: 0]   fr_line, line_0;      
 
-    // Flash Reader wires
-    wire            fr_rd;
-    wire            fr_done;
+    AHB_FLASH_CACHE_CTRL #( .LINE_SIZE(LINE_SIZE), 
+                            .NUM_LINES(NUM_LINES) ) 
+        CCTRL (
+            // AHB-Lite Slave Interface
+            .HCLK(HCLK),
+            .HRESETn(HRESETn),
+            .HSEL(HSEL),
+            .HADDR(HADDR),
+            .HTRANS(HTRANS),
+            .HWRITE(HWRITE),
+            .HREADY(HREADY),
+            .HREADYOUT(HREADYOUT),
+            .HRDATA(HRDATA),
+
+            // The Flash Reader Interface
+            .fr_addr(fr_addr),
+            .fr_rd(fr_rd),
+            .fr_done(fr_done),
+            .fr_line(fr_line)
+    );
+
+    FLASH_READER #( .LINE_SIZE(LINE_SIZE)) 
+        FR (
+            .clk(HCLK),
+            .rst_n(HRESETn),
+            .addr(fr_addr),
+            .rd(fr_rd),
+            .done(fr_done),
+            .line(fr_line),    
+
+            .sck(sck),
+            .ce_n(ce_n),
+            .din(din),
+            .dout(dout),
+            .douten(douten)
+    );
+
+endmodule
+
+
+/* AHB Cache Controller w/ an integrated parmetrized RO Cache */
+module AHB_FLASH_CACHE_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32)(
+    // AHB-Lite Slave Interface
+    input                           HCLK,
+    input                           HRESETn,
+    input                           HSEL,
+    input   wire [31:0]             HADDR,
+    input   wire [1:0]              HTRANS,
+    input   wire                    HWRITE,
+    input   wire                    HREADY,
+    output  reg                     HREADYOUT,
+    output  wire [31:0]             HRDATA,
+
+    // The Flash Reader Interface
+    output  wire [23:0]             fr_addr,
+    output  wire                    fr_rd,
+    input   wire                    fr_done,
+    input   wire [LINE_SIZE-1: 0]   fr_line
+);
 
     // The State Machine
     localparam [1:0] st_idle    = 2'b00;
@@ -66,12 +114,19 @@ module QSPI_XIP_CTRL(
     localparam [1:0] st_rw      = 2'b10;
     reg [1:0]   state, nstate;
 
+    // Cache wires/buses
+    wire [31:0]     c_datao;
+    wire [23:0]     c_A;
+    wire            c_hit;
+    reg  [1:0]      c_wr;
+    
     //AHB-Lite Address Phase Regs
     reg             last_HSEL;
     reg [31:0]      last_HADDR;
     reg             last_HWRITE;
     reg [1:0]       last_HTRANS;
 
+    // AHB Interface lgic
     always@ (posedge HCLK) begin
         if(HREADY) begin
             last_HSEL       <= HSEL;
@@ -81,6 +136,23 @@ module QSPI_XIP_CTRL(
         end
     end
 
+    assign HRDATA   = c_datao;
+
+    always @(posedge HCLK or negedge HRESETn)
+        if(!HRESETn) HREADYOUT <= 1'b1;
+        else
+            case (state)
+                st_idle :   if(HTRANS[1] & HSEL & HREADY & c_hit) HREADYOUT <= 1'b1;
+                            else if(HTRANS[1] & HSEL & HREADY & ~c_hit) HREADYOUT <= 1'b0;
+                            else HREADYOUT <= 1'b1;
+                st_wait :   if(c_wr[1]) HREADYOUT <= 1'b1;
+                            else HREADYOUT <= 1'b0;
+                st_rw   :   if(HTRANS[1] & HSEL & HREADY & c_hit) HREADYOUT <= 1'b1;
+                            else if(HTRANS[1] & HSEL & HREADY & ~c_hit) HREADYOUT <= 1'b0;
+                            //else HREADYOUT <= 1'b1;
+            endcase
+
+    // The controller SM
     always @ (posedge HCLK or negedge HRESETn)
         if(HRESETn == 0) state <= st_idle;
         else 
@@ -98,52 +170,39 @@ module QSPI_XIP_CTRL(
                         else if(HTRANS[1] & HSEL & HREADY & ~c_hit) nstate = st_wait;
         endcase
     end
-    
-    //assign HREADYOUT    = (state==st_rw);
-    always @(posedge HCLK or negedge HRESETn)
-        if(!HRESETn) HREADYOUT <= 1'b1;
-        else
-            case (state)
-                st_idle :   if(HTRANS[1] & HSEL & HREADY & c_hit) HREADYOUT <= 1'b1;
-                            else if(HTRANS[1] & HSEL & HREADY & ~c_hit) HREADYOUT <= 1'b0;
-                            else HREADYOUT <= 1'b1;
-                st_wait :   if(c_wr[1]) HREADYOUT <= 1'b1;
-                            else HREADYOUT <= 1'b0;
-                st_rw   :   if(HTRANS[1] & HSEL & HREADY & c_hit) HREADYOUT <= 1'b1;
-                            else if(HTRANS[1] & HSEL & HREADY & ~c_hit) HREADYOUT <= 1'b0;
-                            //else HREADYOUT <= 1'b1;
-            endcase
-        
 
-    assign fr_rd        =   ( HTRANS[1] & HSEL & HREADY & ~c_hit & (state==st_idle) ) |
-                            ( HTRANS[1] & HSEL & HREADY & ~c_hit & (state==st_rw) );
+    // The cache interface
+    assign c_A  = last_HADDR[23:0];
 
-    assign c_A          = //((state==st_idle) || (state==st_wait)) ? HADDR[23:0] : 
-                            last_HADDR[23:0];
-`ifdef NO_HC_CACHE
-    DMC_32x16
-`else
-    DMC_32x16HC
-`endif
-                CACHE ( 
-                	 .clk(HCLK), .rst_n(HRESETn), 
-                        .A(last_HADDR[23:0]), .A_h(HADDR[23:0]), .Do(c_datao), .hit(c_hit), 
-                        .line(c_line), .wr(c_wr[1]) );
-    
-    FLASH_READER FR (   .clk(HCLK), .rst_n(HRESETn), 
-                        .addr({HADDR[23:4], 4'd0}), .rd(fr_rd), .done(fr_done), .line(c_line),
-                        .sck(sck), .ce_n(ce_n), .din(din), .dout(dout), .douten(douten) );
-
-    assign HRDATA   = c_datao;
-    //always @(posedge HCLK)
-    //    HRDATA <= c_datao;
-
-    //assign c_wr     = fr_done;
     always @ (posedge HCLK) begin
         c_wr[0] <= fr_done;
         c_wr[1] <= c_wr[0];
     end
-  
+
+`ifdef NO_HC_CACHE
+    DMC #(  .LINE_SIZE(LINE_SIZE), 
+            .NUM_LINES(NUM_LINES) 
+    ) 
+`else
+    DMC_32x16HC
+`endif
+        CACHE ( 
+            .clk(HCLK), 
+            .rst_n(HRESETn), 
+            .A(last_HADDR[23:0]), 
+            .A_h(HADDR[23:0]), 
+            .Do(c_datao), 
+            .hit(c_hit), 
+            .line(fr_line), 
+            .wr(c_wr[0])    // was 1
+    );
+        
+    // The Flash Reader Interface
+    assign fr_rd        =   ( HTRANS[1] & HSEL & HREADY & ~c_hit & (state==st_idle) ) |
+                            ( HTRANS[1] & HSEL & HREADY & ~c_hit & (state==st_rw) );
+
+    assign fr_addr      = {HADDR[23:4], 4'd0};
+    
 endmodule
 
 /*
@@ -245,8 +304,7 @@ module FLASH_READER #(parameter LINE_SIZE=128)(
         
     assign douten   = (counter < 20);
 
-    assign done     = (counter == 19+LINE_BYTES*2);
-
+    assign done     = (counter == 20+LINE_BYTES*2);  // was 19?!
 
     generate
         genvar i; 
@@ -256,55 +314,68 @@ module FLASH_READER #(parameter LINE_SIZE=128)(
 
 endmodule
 
-
-
 /*
-    32 lines x 16 bytes Direct Mapped Cache
+    Parametrized Direct Mapped Cache for Read Only memories (e.g., Flash)
+    Supports any numer of lines (2^n; n: 8, 16, 32, ...): NUM_LINES
+    Supports only 4-word (128) or 8-word (256) lines: LINE_SIZE
 */
-`ifdef NO_HC_CACHE
-
-module DMC_32x16 (
-`ifdef USE_POWER_PINS
-    input vccd1,
-    input vssd1,
-`endif
-    input wire          clk,
-    input wire          rst_n,
+module DMC #(parameter LINE_SIZE=128, NUM_LINES=32)(
+    input wire                  clk,
+    input wire                  rst_n,
     // 
-    input wire  [23:0]  A,
-    input wire  [23:0]  A_h,
-    output wire [31:0]  Do,
-    output wire         hit,
+    input wire  [23:0]          A,
+    input wire  [23:0]          A_h,
+    output wire [31:0]          Do,
+    output wire                 hit,
     //
-    input wire [127:0]  line,
-    input wire          wr
+    input wire [LINE_SIZE-1:0]  line,
+    input wire                  wr
 );
 
-    //
-    reg [127:0] LINES   [31:0];
-    reg [14:0]  TAGS    [31:0];
-    reg         VALID   [31:0];
-
-    wire [3:0]  offset  = A[3:0];
-    wire [4:0]  index   = A[8:4];
-    wire [14:0] tag     = A[23:9];
-
-    wire [4:0]  index_h   = A_h[8:4];
-    wire [14:0] tag_h     = A_h[23:9];
-
+    localparam  NUM_WORDS       = LINE_SIZE/32;  
+    localparam  NUM_BYTES       = LINE_SIZE/8;  
+    localparam  OFFSET_WIDTH    = $clog2(NUM_BYTES);
+    localparam  INDEX_WIDTH     = $clog2(NUM_LINES);
+    localparam  TAG_WIDTH       = 24 + 3 - INDEX_WIDTH - OFFSET_WIDTH;
     
+    // Cache storage
+    reg [LINE_SIZE-1:0] LINES   [NUM_LINES-1:0];
+    reg [TAG_WIDTH-1:0] TAGS    [NUM_LINES-1:0];
+    reg                 VALID   [NUM_LINES-1:0];
+
+    wire [OFFSET_WIDTH-1:0] offset  =   A[OFFSET_WIDTH-1:0];
+    wire [OFFSET_WIDTH-1:2] woffset =   A[OFFSET_WIDTH-1:2];
+    wire [INDEX_WIDTH-1:0]  index   =   A[OFFSET_WIDTH+INDEX_WIDTH-1:OFFSET_WIDTH];
+    wire [TAG_WIDTH-1:0]    tag     =   A[23:OFFSET_WIDTH+INDEX_WIDTH];
+
+    wire [INDEX_WIDTH-1:0]  index_h =   A_h[OFFSET_WIDTH+INDEX_WIDTH-1:OFFSET_WIDTH];
+    wire [TAG_WIDTH-1:0]    tag_h   =   A_h[23:OFFSET_WIDTH+INDEX_WIDTH];
+
     assign  hit =   VALID[index_h] & (TAGS[index_h] == tag_h);
 
-    assign  Do  =   (offset[3:2] == 2'd0) ?  LINES[index][31:0] :
-                    (offset[3:2] == 2'd1) ?  LINES[index][63:32] :
-                    (offset[3:2] == 2'd2) ?  LINES[index][95:64] :
-                    LINES[index][127:96];
+    wire [LINE_SIZE:0]    sel_line  =   LINES[index];
+
+    generate
+        if(NUM_WORDS == 4) begin
+            assign  Do  =   (offset[3:2] == 2'd0) ?  sel_line[31:0]     :
+                            (offset[3:2] == 2'd1) ?  sel_line[63:32]    :
+                            (offset[3:2] == 2'd2) ?  sel_line[95:64]    :   sel_line[127:96];
+        end else if (NUM_WORDS == 8) begin
+            assign  Do  =   (offset[4:2] == 'd0) ?  sel_line[31:0]     :
+                            (offset[4:2] == 'd1) ?  sel_line[63:32]    :
+                            (offset[4:2] == 'd2) ?  sel_line[95:64]    :   
+                            (offset[4:2] == 'd3) ?  sel_line[127:96]     :
+                            (offset[4:2] == 'd4) ?  sel_line[159:128]    :
+                            (offset[4:2] == 'd5) ?  sel_line[191:160]    :   
+                            (offset[4:2] == 'd6) ?  sel_line[223:192]    :   sel_line[255:224];
+        end
+    endgenerate
 
     // clear the VALID flags
     integer i;
     always @ (posedge clk or negedge rst_n)
         if(!rst_n) 
-            for(i=0; i<32; i=i+1)
+            for(i=0; i<NUM_LINES; i=i+1)
                 VALID[i] <= 1'b0;
         else  if(wr)  VALID[index]    <= 1'b1;
 
@@ -315,4 +386,3 @@ module DMC_32x16 (
         end
 
 endmodule
-`endif
