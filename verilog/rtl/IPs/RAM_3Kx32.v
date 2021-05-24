@@ -72,14 +72,36 @@ module RAM_3Kx32 (
         
     endgenerate 
     
-    sky130_fd_sc_hd__clkbuf_8 ABUF[11:10] (.X(A_buf), .A(A[11:10]));
+    sky130_fd_sc_hd__clkbuf_8 ABUF[11:10] (
+    `ifdef USE_POWER_PINS
+        .VPWR(vccd1),
+        .VGND(vssd1),
+        .VPB(vccd1),
+        .VNB(vssd1),
+    `endif
+        .X(A_buf), .A(A[11:10]));
 
     MUX4x1_ MUX ( 
+    `ifdef USE_POWER_PINS
+            .VPWR(vccd1),
+            .VGND(vssd1),
+    `endif
         .A0(_Do_[0]), .A1(_Do_[1]), .A2(_Do_[2]), .A3(32'b0), .S(A_buf), .X(Do_pre) );
 
     DEC2x3_ DEC ( 
+    `ifdef USE_POWER_PINS
+            .VPWR(vccd1),
+            .VGND(vssd1),
+    `endif
         .EN(EN), .A(A[11:10]), .SEL(_EN_) );
 
-    sky130_fd_sc_hd__clkbuf_4 DOBUF[31:0] ( .X(Do), .A(Do_pre));
+    sky130_fd_sc_hd__clkbuf_4 DOBUF[31:0] ( 
+    `ifdef USE_POWER_PINS
+            .VPWR(vccd1),
+            .VGND(vssd1),
+            .VPB(vccd1),
+            .VNB(vssd1),
+    `endif
+        .X(Do), .A(Do_pre));
     
 endmodule

@@ -59,39 +59,39 @@ module DEC1x2_ (
 endmodule
 
 module DEC2x3_ (
-// `ifdef USE_POWER_PINS
-//     input wire VPWR,
-//     input wire VGND,
-// `endif
+`ifdef USE_POWER_PINS
+    input wire VPWR,
+    input wire VGND,
+`endif
     input           EN,
     input   [1:0]   A,
     output  [2:0]   SEL
 );
     sky130_fd_sc_hd__nor3b_4    AND0 ( 
-    // `ifdef USE_POWER_PINS
-    //     .VPWR(VPWR),
-    //     .VGND(VGND),
-    //     .VPB(VPWR),
-    //     .VNB(VGND),
-    // `endif
+    `ifdef USE_POWER_PINS
+        .VPWR(VPWR),
+        .VGND(VGND),
+        .VPB(VPWR),
+        .VNB(VGND),
+    `endif
         .Y(SEL[0]), .A(A[0]),   .B(A[1]), .C_N(EN) );
     
     sky130_fd_sc_hd__and3b_4    AND1 ( 
-    // `ifdef USE_POWER_PINS
-    //     .VPWR(VPWR),
-    //     .VGND(VGND),
-    //     .VPB(VPWR),
-    //     .VNB(VGND),
-    // `endif
+    `ifdef USE_POWER_PINS
+        .VPWR(VPWR),
+        .VGND(VGND),
+        .VPB(VPWR),
+        .VNB(VGND),
+    `endif
         .X(SEL[1]), .A_N(A[1]), .B(A[0]), .C(EN) );
 
     sky130_fd_sc_hd__and3b_4    AND2 ( 
-    // `ifdef USE_POWER_PINS
-    //     .VPWR(VPWR),
-    //     .VGND(VGND),
-    //     .VPB(VPWR),
-    //     .VNB(VGND),
-    // `endif
+    `ifdef USE_POWER_PINS
+        .VPWR(VPWR),
+        .VGND(VGND),
+        .VPB(VPWR),
+        .VNB(VGND),
+    `endif
         .X(SEL[2]), .A_N(A[0]), .B(A[1]), .C(EN) );
     
 endmodule
@@ -164,10 +164,10 @@ endmodule
 
 module MUX4x1_ #(parameter   WIDTH=32)
 (
-// `ifdef USE_POWER_PINS
-//     input wire VPWR,
-//     input wire VGND,
-// `endif
+`ifdef USE_POWER_PINS
+    input wire VPWR,
+    input wire VGND,
+`endif
     input   wire [WIDTH-1:0]     A0, A1, A2, A3,
     input   wire [1:0]          S,
     output  wire [WIDTH-1:0]     X
@@ -175,33 +175,33 @@ module MUX4x1_ #(parameter   WIDTH=32)
     localparam SIZE = WIDTH/8;
     wire [SIZE-1:0] SEL0, SEL1;
     sky130_fd_sc_hd__clkbuf_2 SEL0BUF[SIZE-1:0] (
-    //  `ifdef USE_POWER_PINS
-    //     .VPWR(VPWR),
-    //     .VGND(VGND),
-    //     .VPB(VPWR),
-    //     .VNB(VGND),
-    // `endif
+     `ifdef USE_POWER_PINS
+        .VPWR(VPWR),
+        .VGND(VGND),
+        .VPB(VPWR),
+        .VNB(VGND),
+    `endif
         .X(SEL0), .A(S[0]));
     
     sky130_fd_sc_hd__clkbuf_2 SEL1BUF[SIZE-1:0] (
-    // `ifdef USE_POWER_PINS
-    //     .VPWR(VPWR),
-    //     .VGND(VGND),
-    //     .VPB(VPWR),
-    //     .VNB(VGND),
-    // `endif
+    `ifdef USE_POWER_PINS
+        .VPWR(VPWR),
+        .VGND(VGND),
+        .VPB(VPWR),
+        .VNB(VGND),
+    `endif
         .X(SEL1), .A(S[1]));
     
     generate
         genvar i;
         for(i=0; i<SIZE; i=i+1) begin : M
             sky130_fd_sc_hd__mux4_1 MUX[7:0] (
-            // `ifdef USE_POWER_PINS
-            //     .VPWR(VPWR),
-            //     .VGND(VGND),
-            //     .VPB(VPWR),
-            //     .VNB(VGND),
-            // `endif
+            `ifdef USE_POWER_PINS
+                .VPWR(VPWR),
+                .VGND(VGND),
+                .VPB(VPWR),
+                .VNB(VGND),
+            `endif
                     .A0(A0[(i+1)*8-1:i*8]), 
                     .A1(A1[(i+1)*8-1:i*8]), 
                     .A2(A2[(i+1)*8-1:i*8]), 

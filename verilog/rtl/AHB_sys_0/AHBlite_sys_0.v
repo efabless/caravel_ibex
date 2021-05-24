@@ -104,6 +104,10 @@ module AHBlite_sys_0(
 
 	//Digital module # 0
 	AHB_FLASH_CTRL S0 ( 
+	`ifdef USE_POWER_PINS
+		.vccd1(vccd1),
+		.vssd1(vssd1),
+    `endif
 		.HCLK(HCLK),
 		.HRESETn(HRESETn),
 		.HSEL(HSEL_S0),
@@ -138,10 +142,7 @@ module AHBlite_sys_0(
 		.SRAMRDATA(SRAMRDATA_S1),
 		.SRAMWEN(SRAMWEN_S1),
 		.SRAMWDATA(SRAMWDATA_S1),
-		.SRAMCS0(SRAMCS0_S1),
-		//.SRAMCS1(SRAMCS1_S1),
-		//.SRAMCS2(SRAMCS2_S1),
-		//.SRAMCS3(SRAMCS3_S1),
+		.SRAMCS(SRAMCS0_S1),
 		.SRAMADDR(SRAMADDR_S1)
 	);
 		
