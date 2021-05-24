@@ -19,8 +19,8 @@
 //`define DBG
 module AHBlite_sys_0(
 `ifdef USE_POWER_PINS
-		input vccd1,
-		input vssd1,
+		input wire vccd1,
+		input wire vssd1,
 `endif
 		input HCLK,
 		input HRESETn,
@@ -104,10 +104,6 @@ module AHBlite_sys_0(
 
 	//Digital module # 0
 	AHB_FLASH_CTRL S0 ( 
-	`ifdef USE_POWER_PINS
-		.vccd1(vccd1),
-		.vssd1(vssd1),
-	`endif
 		.HCLK(HCLK),
 		.HRESETn(HRESETn),
 		.HSEL(HSEL_S0),
@@ -187,26 +183,6 @@ module AHBlite_sys_0(
 		.IRQ(IRQ[13:0])
 	);
 			
-	//AHB Slave # 3
-/*	
-	AHBlite_db_reg S_3 (
-		.HCLK(HCLK),
-		.HRESETn(HRESETn),
-		.HSEL(HSEL_S3),
-		.HADDR(HADDR[23:2]),
-		.HREADY(HREADY),
-		.HWRITE(HWRITE),
-		.HTRANS(HTRANS),
-		.HSIZE(HSIZE),
-		.HWDATA(HWDATA),
-		.db_reg(db_reg),
-
-		.HRDATA(HRDATA_S3),
-		.HREADYOUT(HREADY_S3),
-		.HRESP(HRESP)
-	);
-*/
-
 	AHB_SPM S_3 (
 		.HCLK(HCLK),
 		.HRESETn(HRESETn),
@@ -274,8 +250,8 @@ module AHBlite_sys_0(
     //SubSystem Instantiation #0 
     apb_sys_0 apb_sys_inst_0(
     `ifdef USE_POWER_PINS
-	.vccd1(vccd1),
-	.vssd1(vssd1),
+		.vccd1(vccd1),
+		.vssd1(vssd1),
     `endif
         // Global signals 
         .HCLK(HCLK),

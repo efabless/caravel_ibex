@@ -20,10 +20,6 @@
 */
 
 module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
-    `ifdef USE_POWER_PINS
-        input wire vccd1,
-        input wire vssd1,
-    `endif
     // AHB-Lite Slave Interface
     input wire          HCLK,
     input wire          HRESETn,
@@ -51,10 +47,6 @@ module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
     AHB_FLASH_CACHE_CTRL #( .LINE_SIZE(LINE_SIZE), 
                             .NUM_LINES(NUM_LINES) ) 
         CCTRL (
-        `ifdef USE_POWER_PINS 
-            .vccd1(vccd1),
-            .vssd1(vssd1),
-        `endif
             // AHB-Lite Slave Interface
             .HCLK(HCLK),
             .HRESETn(HRESETn),
@@ -95,10 +87,6 @@ endmodule
 /* AHB Cache Controller w/ an integrated parmetrized RO Cache */
 module AHB_FLASH_CACHE_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32)(
     // AHB-Lite Slave Interface
-    `ifdef USE_POWER_PINS
-        input wire vccd1,
-        input wire vssd1,
-    `endif
     input                           HCLK,
     input                           HRESETn,
     input                           HSEL,
@@ -190,15 +178,26 @@ module AHB_FLASH_CACHE_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32)(
 `ifdef NO_HC_CACHE
     DMC #(  .LINE_SIZE(LINE_SIZE), 
             .NUM_LINES(NUM_LINES) 
-    ) 
+    )  CACHE ( 
+        // `ifdef USE_POWER_PINS 
+        //     .vccd1(vccd1),
+        //     .vssd1(vssd1),
+        // `endif
+            .clk(HCLK), 
+            .rst_n(HRESETn), 
+            .A(last_HADDR[23:0]), 
+            .A_h(HADDR[23:0]), 
+            .Do(c_datao), 
+            .hit(c_hit), 
+            .line(fr_line), 
+            .wr(c_wr[0])    // was 1
+        );
 `else
-    DMC_32x16HC
-`endif
-        CACHE ( 
-        `ifdef USE_POWER_PINS 
-            .vccd1(vccd1),
-            .vssd1(vssd1),
-        `endif
+    DMC_32x16HC  CACHE ( 
+        // `ifdef USE_POWER_PINS 
+        //     .vccd1(vccd1),
+        //     .vssd1(vssd1),
+        // `endif
             .clk(HCLK), 
             .rst_n(HRESETn), 
             .A(last_HADDR[23:2]), 
@@ -207,8 +206,8 @@ module AHB_FLASH_CACHE_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32)(
             .hit(c_hit), 
             .line(fr_line), 
             .wr(c_wr[0])    // was 1
-    );
-        
+        );
+`endif
     // The Flash Reader Interface
     assign fr_rd        =   ( HTRANS[1] & HSEL & HREADY & ~c_hit & (state==st_idle) ) |
                             ( HTRANS[1] & HSEL & HREADY & ~c_hit & (state==st_rw) );
@@ -332,10 +331,10 @@ endmodule
     Supports only 4-word (128) or 8-word (256) lines: LINE_SIZE
 */
 module DMC #(parameter LINE_SIZE=128, NUM_LINES=32)(
-`ifdef USE_POWER_PINS
-    input wire vccd1,
-    input wire vssd1,
-`endif
+// `ifdef USE_POWER_PINS
+//     input wire vccd1,
+//     input wire vssd1,
+// `endif
 
     input wire                  clk,
     input wire                  rst_n,

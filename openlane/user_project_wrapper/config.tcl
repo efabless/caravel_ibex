@@ -30,6 +30,7 @@ set ::env(RUN_KLAYOUT) 0
 
 ## Source Verilog Files
 set ::env(VERILOG_FILES) "\
+	$script_dir/../../caravel/verilog/rtl/defines.v
 	$script_dir/../../verilog/rtl/uprj_defines.v
     $script_dir/../../verilog/rtl/acc/AHB_SPM.v
     $script_dir/../../verilog/rtl/IPs/AHBSRAM.v
@@ -52,13 +53,15 @@ set ::env(VERILOG_FILES) "\
 ## Clock configurations
 set ::env(CLOCK_PORT)   "wb_clk_i"
 set ::env(CLOCK_NET)    "wb_clk_i"
-set ::env(CLOCK_PERIOD) "10"
+set ::env(CLOCK_PERIOD) "28"
 
 ## Synthesis
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 
+## Floorplan
+set ::env(FP_PDN_CHECK_NODES) 0
 ## Placement
-set ::env(PL_TARGET_DENSITY)     0.05 
+set ::env(PL_TARGET_DENSITY)     0.05
 # Increase diamanod search height so that the detailed placement can legalize cells overlapping with big macros
 set ::env(PL_DIAMOND_SEARCH_HEIGHT) 400	
 
@@ -83,19 +86,19 @@ set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
-    $script_dir/../../verilog/rtl/ibex/*.v
-	$script_dir/../../verilog/rtl/IPs/DFFRAM_4K.v
-    $script_dir/../../verilog/rtl/AHB_sys_0/APB_sys_0/*.v
+    $script_dir/../../verilog/rtl/ibex/ibex_wrapper.v
+	$script_dir/../../verilog/rtl/IPs/DFFRAM_1Kx32.v
+    $script_dir/../../verilog/rtl/AHB_sys_0/APB_sys_0/APB_sys_0.v
     $script_dir/../../verilog/rtl/IPs/DMC_32x16HC.v"
 
 set ::env(EXTRA_LEFS) "\
-	$script_dir/../../lef/apb_sys_0.lef
 	$script_dir/../../lef/ibex_wrapper.lef
-	$script_dir/../../lef/DFFRAM_4K.lef
+	$script_dir/../../lef/apb_sys_0.lef
+	$script_dir/../../lef/DFFRAM_1Kx32.lef
     $script_dir/../../lef/DMC_32x16HC.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-	$script_dir/../../gds/apb_sys_0.gds
 	$script_dir/../../gds/ibex_wrapper.gds
- 	$script_dir/../../gds/DFFRAM_4K.gds
+	$script_dir/../../gds/apb_sys_0.gds
+ 	$script_dir/../../gds/DFFRAM_1Kx32.gds
  	$script_dir/../../gds/DMC_32x16HC.gds"

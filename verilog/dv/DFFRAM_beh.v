@@ -15,6 +15,10 @@
 
 module DFFRAM_beh #( parameter WSIZE=4)
 (
+`ifdef USE_POWER_PINS
+    vccd1,
+    vssd1,
+`endif
     CLK,
     WE,
     EN,
@@ -23,6 +27,11 @@ module DFFRAM_beh #( parameter WSIZE=4)
     A
 );
     localparam A_WIDTH = 8+$clog2(WSIZE);
+
+`ifdef USE_POWER_PINS
+    input wire vccd1;
+    input wire vssd1;
+`endif
 
     input   wire            CLK;
     input   wire    [3:0]   WE;

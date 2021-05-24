@@ -19,15 +19,12 @@
 `define USE_POWER_PINS
 
 `ifdef FAST
-	// `define USE_DFFRAM_BEH
+	`define USE_DFFRAM_BEH
     `define NO_HC_CACHE
-    // `include "DFFRAM_beh.v"
-	`include "IPs/DFFRAM_1Kx32.v"
-
+	`include "DFFRAM_beh.v"
 `else
 	`ifndef GL_UA
 		`include "IPs/DFFRAM_1Kx32.v"
-		`include "IPs/DFFRAMBB.v"
 		`include "IPs/DMC_32x16HC.v"
 	`endif
 `endif
@@ -51,6 +48,8 @@
 	`include "AHB_sys_0/APB_sys_0/APB_bus0.v"
 	`include "AHB_sys_0/APB_sys_0/APB_sys_0.v"
 	`include "IPs/DFFRAMBB.v"
+	`include "IPs/DMC_32x16HC.v"
+	`include "IPs/DFFRAM_1Kx32.v"
 	`include "IPs/TIMER32.v"
 	`include "IPs/PWM32.v"
 	`include "IPs/WDT32.v"

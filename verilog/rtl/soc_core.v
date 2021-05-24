@@ -20,8 +20,8 @@
 
 module soc_core (
 `ifdef USE_POWER_PINS
-	input vccd1,
-	input vssd1,
+	input wire vccd1,
+	input wire vssd1,
 `endif
 	input HCLK, 
 	input HRESETn,

@@ -75,7 +75,7 @@ inout [3:0] SIO;        // serial 4-bit bus I/O
 reg [31:0] error_cnt;	// count timing errors
 	parameter MASK_ERRORS=500;			// mask any timing errors before this time
 
-	defparam IO.Ksize = 0;  //Size of memory in Kilo bytes
+	defparam I0.Ksize = 0;  //Size of memory in Kilo bytes
 	defparam I0.Msize = 1;				// Size of memory in Mega bites. I.E. 8-bit field size, use S080=1, S016=2, S032=4
 	defparam I0.ADDR_MSB=19;			// most significant address bit, 32Mb=21,16Mb=20, 8Mb=19, 4Mb=18;
 	defparam I0.Memory_Capacity = 8'h58;		// ID read memory size 32M=52,16M=51,8M=58, JEDEC read value
