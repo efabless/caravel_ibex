@@ -1,96 +1,95 @@
-// SPDX-FileCopyrightText: 2020 Mohamed Shalan
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// SPDX-License-Identifier: Apache-2.0
+/*
+ 	 _   _  __ ___     __   _________  
+	| \ | |/ _(_) \   / /__|___ /___ \ 
+	|  \| | |_| |\ \ / / _ \ |_ \ __) |
+	| |\  |  _| | \ V /  __/___) / __/ 
+	|_| \_|_| |_|  \_/ \___|____/_____|
+	Copyright 2020 Mohamed Shalan
+	
+	Licensed under the Apache License, Version 2.0 (the "License"); 
+	you may not use this file except in compliance with the License. 
+	You may obtain a copy of the License at:
 
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, 
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and 
+	limitations under the License.
+*/
+/*
+  Updated vesrion of the code provided by the Communication IC design Book
+  The book is out of print and I cannot find any reference to it online
+  The downloaded code does not contain any copyright or license text
+  The cached version (by Google) can be found at: 
+  http://en.pudn.com/Download/item/id/3120046.html
+*/
+
+`timescale          1ns/1ps
+`default_nettype    none
 
 module AHBSRAM #(
-// --------------------------------------------------------------------------
-// Parameter Declarations
-// --------------------------------------------------------------------------
-  parameter AW       = 11) // Address width
- (
-// --------------------------------------------------------------------------
-// Port Definitions
-// --------------------------------------------------------------------------
-  input  wire          HCLK,      // system bus clock
-  input  wire          HRESETn,   // system bus reset
-  input  wire          HSEL,      // AHB peripheral select
-  input  wire          HREADY,    // AHB ready input
-  input  wire    [1:0] HTRANS,    // AHB transfer type
-  input  wire    [2:0] HSIZE,     // AHB hsize
-  input  wire          HWRITE,    // AHB hwrite
-  input  wire [31:0] HADDR,     // AHB address bus
-  input  wire   [31:0] HWDATA,    // AHB write data bus
-  output wire          HREADYOUT, // AHB ready output to S->M mux
-  output wire   [1:0]       HRESP,     // AHB response
-  output wire   [31:0] HRDATA,    // AHB read data bus
+    parameter AW = 14               // Address width
+)
+(
+    // AHB BUS       
+    input  wire             HCLK,      
+    input  wire             HRESETn,   
+    input  wire             HSEL,      
+    input  wire             HREADY,    
+    input  wire [1:0]       HTRANS,    
+    input  wire [2:0]       HSIZE,     
+    input  wire             HWRITE,    
+    input  wire [31:0]      HADDR,     
+    input  wire [31:0]      HWDATA,   
+    output wire [31:0]      HRDATA,       
+    output wire             HREADYOUT,
 
-  input  wire   [31:0] SRAMRDATA, // SRAM Read Data
-  output wire    [3:0] SRAMWEN,   // SRAM write enable (active high)
-  output wire   [31:0] SRAMWDATA, // SRAM write data
-  output wire          SRAMCS0,
-  //output wire          SRAMCS1,
-  //output wire          SRAMCS2,
-  //output wire          SRAMCS3,
-  output wire [AW:0]   SRAMADDR  // SRAM address
-);   // SRAM Chip Select  (active high)
+    // SRAM Interface
+    input  wire [31:0]      SRAMRDATA,    
+    output wire [3:0]       SRAMWEN,      
+    output wire [31:0]      SRAMWDATA,    
+    output wire             SRAMCS,       
+    output wire [AW-3:0]    SRAMADDR      
+);   
 
-   // ----------------------------------------------------------
-   // Internal state
-   // ----------------------------------------------------------
-   reg  [(AW-3 - 0):0]           buf_addr;        // Write address buffer
-   reg  [ 3:0]               buf_we;          // Write enable buffer (data phase)
-   reg                       buf_hit;         // High when AHB read address
-                                              // matches buffered address
-   reg  [31:0]               buf_data;        // AHB write bus buffered
-   reg                       buf_pend;        // Buffer write data valid
-   reg                       buf_data_en;     // Data buffer write enable (data phase)
+   reg  [(AW-3):0]          buf_addr;        // Write address buffer
+   reg  [3:0]               buf_we;          // Write enable buffer (data phase)
+   reg                      buf_hit;         // High when AHB read address
+                                             // matches buffered address
+   reg  [31:0]              buf_data;        // AHB write bus buffered
+   reg                      buf_pend;        // Buffer write data valid
+   reg                      buf_data_en;     // Data buffer write enable (data phase)
 
-   // ----------------------------------------------------------
-   // Read/write control logic
-   // ----------------------------------------------------------
-
-   wire        ahb_access   = HTRANS[1] & HSEL & HREADY;
-   wire        ahb_write    = ahb_access &  HWRITE;
-   wire        ahb_read     = ahb_access & (~HWRITE);
+   wire                     ahb_access   = HTRANS[1] & HSEL & HREADY;
+   wire                     ahb_write    = ahb_access &  HWRITE;
+   wire                     ahb_read     = ahb_access & (~HWRITE);
 
 
    // Stored write data in pending state if new transfer is read
    //   buf_data_en indicate new write (data phase)
    //   ahb_read    indicate new read  (address phase)
    //   buf_pend    is registered version of buf_pend_nxt
-   wire        buf_pend_nxt = (buf_pend | buf_data_en) & ahb_read;
+   wire         buf_pend_nxt = (buf_pend | buf_data_en) & ahb_read;
 
    // RAM write happens when
    // - write pending (buf_pend), or
    // - new AHB write seen (buf_data_en) at data phase,
    // - and not reading (address phase)
-   wire        ram_write    = (buf_pend | buf_data_en)  & (~ahb_read); // ahb_write
+   wire         ram_write   = (buf_pend | buf_data_en)  & (~ahb_read); // ahb_write
 
    // RAM WE is the buffered WE
-   assign      SRAMWEN  = {4{ram_write}} & buf_we[3:0];
+   assign       SRAMWEN     = {4{ram_write}} & buf_we[3:0];
 
    // RAM address is the buffered address for RAM write otherwise HADDR
-   assign      SRAMADDR = ahb_read ? HADDR[AW-1:2] : buf_addr;
+   assign       SRAMADDR    = ahb_read ? HADDR[AW-1:2] : buf_addr;
 
    // RAM chip select during read or write
-   wire SRAMCS_src; 
-   assign      SRAMCS_src   = ahb_read | ram_write;
-   assign SRAMCS0 = SRAMCS_src; // & (~HADDR[AW + 3]) & (~HADDR[AW + 2]);
-   //assign SRAMCS1 = SRAMCS_src & (~HADDR[AW + 3]) & (HADDR[AW + 2]);
-   //assign SRAMCS2 = SRAMCS_src & (HADDR[AW + 3]) & (~HADDR[AW + 2]);
-   //assign SRAMCS3 = SRAMCS_src & (HADDR[AW + 3]) & (HADDR[AW + 2]);
+   wire         SRAMCS_src; 
+   assign       SRAMCS_src  = ahb_read | ram_write;
+   assign       SRAMCS      = SRAMCS_src; 
+   
    // ----------------------------------------------------------
    // Byte lane decoder and next state logic
    // ----------------------------------------------------------
@@ -120,11 +119,7 @@ module AHBSRAM #(
                              byte_sel_1 & ahb_write,
                              byte_sel_0 & ahb_write };
 
-   // ----------------------------------------------------------
-   // Write buffer
-   // ----------------------------------------------------------
-
-   // buf_data_en is data phase write control
+     // buf_data_en is data phase write control
    always @(posedge HCLK or negedge HRESETn)
      if (~HRESETn)
        buf_data_en <= 1'b0;
@@ -161,10 +156,7 @@ module AHBSRAM #(
      else if (ahb_write)
          buf_addr <= HADDR[(AW-1):2];
      end
-   // ----------------------------------------------------------
-   // Buf_hit detection logic
-   // ----------------------------------------------------------
-
+   
    wire  buf_hit_nxt = (HADDR[AW-1:2] == buf_addr[AW-3 - 0:0]);
 
    // ----------------------------------------------------------
@@ -176,11 +168,11 @@ module AHBSRAM #(
 
    wire [ 3:0] merge1  = {4{buf_hit}} & buf_we; // data phase, buf_we indicates data is valid
 
-   assign HRDATA =
-              { merge1[3] ? buf_data[31:24] : SRAMRDATA[31:24],
-                merge1[2] ? buf_data[23:16] : SRAMRDATA[23:16],
-                merge1[1] ? buf_data[15: 8] : SRAMRDATA[15: 8],
-                merge1[0] ? buf_data[ 7: 0] : SRAMRDATA[ 7: 0] };
+   assign HRDATA = {    merge1[3] ? buf_data[31:24] : SRAMRDATA[31:24],
+                        merge1[2] ? buf_data[23:16] : SRAMRDATA[23:16],
+                        merge1[1] ? buf_data[15: 8] : SRAMRDATA[15: 8],
+                        merge1[0] ? buf_data[ 7: 0] : SRAMRDATA[ 7: 0] 
+                    };
 
    // ----------------------------------------------------------
    // Synchronous state update
@@ -202,11 +194,6 @@ module AHBSRAM #(
    // comes from the buffer. otherwise comes from the HWDATA
    assign SRAMWDATA = (buf_pend) ? buf_data : HWDATA[31:0];
 
-   // ----------------------------------------------------------
-   // Assign outputs
-   // ----------------------------------------------------------
    assign HREADYOUT = 1'b1;
-   assign HRESP     = 2'b0;
-
-
+   
 endmodule
