@@ -68,7 +68,7 @@ set ::env(PL_DIAMOND_SEARCH_HEIGHT) 400
 set ::env(CELL_PAD)              0
 
 ## Routing configurations
-set ::env(GLB_RT_ADJUSTMENT) 0.35
+set ::env(GLB_RT_ADJUSTMENT) 0.38
 set ::env(GLB_RT_MAXLAYER) 5
 
 set ::env(GLB_RT_OBS) "
@@ -78,7 +78,8 @@ set ::env(GLB_RT_OBS) "
 	met4 2150 1700 2750 2500"
 
 ## Diode insertion 
-set ::env(DIODE_INSERTION_STRATEGY) "4"
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 200
+set ::env(DIODE_INSERTION_STRATEGY) "3"
 
 ## Internal Macro
 ### Macro Placement
