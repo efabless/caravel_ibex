@@ -61,7 +61,7 @@ set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 ## Floorplan
 set ::env(FP_PDN_CHECK_NODES) 0
 ## Placement
-set ::env(PL_TARGET_DENSITY)     0.05
+set ::env(PL_TARGET_DENSITY)     0.2
 # Increase diamanod search height so that the detailed placement can legalize cells overlapping with big macros
 set ::env(PL_DIAMOND_SEARCH_HEIGHT) 400	
 
@@ -80,7 +80,7 @@ set ::env(GLB_RT_OBS) "
 ## Diode insertion 
 set ::env(DIODE_INSERTION_STRATEGY) "4"
 
-## Internal Macros
+## Internal Macro
 ### Macro Placement
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
