@@ -22,6 +22,8 @@
 `define SIM_LEVEL          0
 `define SOC_SETUP_TIME     200*2001
 
+`define USE_POWER_PINS
+
 `include "uprj_netlists.v"
 `include "caravel_netlists.v"
 
