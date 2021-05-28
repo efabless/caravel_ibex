@@ -24,8 +24,10 @@
 
 `define USE_POWER_PINS
 
-`include "uprj_netlists.v"
 `include "caravel_netlists.v"
+`include "uprj_netlists.v"
+
+
 
 `include "spiflash.v"
 

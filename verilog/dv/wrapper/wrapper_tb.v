@@ -1,7 +1,7 @@
 `timescale 1ns/1ns
 
 `define   TEST_FILE   "wrapper.hex" 
-`define   SIM_TIME    2000_000
+`define   SIM_TIME    285_7140
 `define   SIM_LEVEL   0
 
 `define FUNCTIONAL
@@ -83,7 +83,7 @@ module Ibex_Wrapper_TB;
     
     assign io_in[13:0] = GPIOIN_Sys0_S2;
     assign GPIOOUT_Sys0_S2 = io_out[13:0];
-    assign GPIOOEN_Sys0_S2 = ~io_oeb[13:0];
+    assign GPIOOEN_Sys0_S2 = io_oeb[13:0];
 
     assign io_in[17:14] = fdi;
     assign fdo = io_out[17:14];
@@ -218,9 +218,12 @@ module Ibex_Wrapper_TB;
 
     // Dump file
     initial begin
-        // $dumpfile("Ibex_Wrapper_TB.vcd");
-        // $dumpvars(`SIM_LEVEL, Ibex_Wrapper_TB);
+        $dumpfile("Ibex_Wrapper_TB.vcd");
+        $dumpvars(`SIM_LEVEL, Ibex_Wrapper_TB);
         #`SIM_TIME;
+  	$display("io_in %0h", io_in, $time);
+        $display("io_out %0h", io_out, $time);
+     	$display("io_oeb %0h", io_oeb, $time);
         $finish;
     end
 
@@ -234,12 +237,15 @@ module Ibex_Wrapper_TB;
         end
     */
 
-    // Monitor Flash memory reads
-    //always @(posedge HCLK)
-    //    if(MUV.N5.HTRANS[1] & MUV.N5.HREADY & MUV.N5.HSEL_FLASH)
-    //    $display("Flash Read A:%X (%0t)", HADDR, $time);
+   // Monitor Flash memory reads
+  // always @(io_out)
+   //     $display("io_out %0h", io_out, $time);
 
+   // always @(io_in)
+     //   $display("io_in %0h", io_in, $time);
 
+   // always @(io_oeb)
+     //   $display("io_oeb %0h", io_oeb, $time);
     
 endmodule
 
