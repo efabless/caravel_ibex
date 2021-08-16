@@ -990,7 +990,7 @@ port 211 nsew ground bidirectional
 string LEFclass BLOCK
 string FIXED_BBOX 0 0 80000 120000
 string LEFview TRUE
-string GDS_FILE /project/openlane/DMC_32x16HC/runs/DMC_32x16HC/results/magic/DMC_32x16HC.gds
+string GDS_FILE ../gds/apb_sys_0.gds
 string GDS_END 28100238
 string GDS_START 234392
 << end >>

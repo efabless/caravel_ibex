@@ -1143,7 +1143,7 @@ port 94 nsew ground bidirectional
 string LEFclass BLOCK
 string FIXED_BBOX 0 0 220000 280000
 string LEFview TRUE
-string GDS_FILE /project/openlane/DFFRAM_1Kx32/runs/DFFRAM_1Kx32/results/magic/DFFRAM_1Kx32.gds
+string GDS_FILE ../gds/apb_sys_0.gds
 string GDS_END 238362704
 string GDS_START 181870
 << end >>

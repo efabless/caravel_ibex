@@ -645,7 +645,7 @@ port 152 nsew ground bidirectional
 string LEFclass BLOCK
 string FIXED_BBOX 0 0 90000 140000
 string LEFview TRUE
-string GDS_FILE /project/openlane/apb_sys_0/runs/apb_sys_0/results/magic/apb_sys_0.gds
+string GDS_FILE ../gds/apb_sys_0.gds
 string GDS_END 35846914
 string GDS_START 1015958
 << end >>

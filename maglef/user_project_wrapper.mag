@@ -5980,7 +5980,7 @@ port 1174 nsew ground bidirectional
 string LEFclass BLOCK
 string FIXED_BBOX 0 0 584000 704000
 string LEFview TRUE
-string GDS_FILE /project/openlane/user_project_wrapper/runs/user_project_wrapper/results/magic/user_project_wrapper.gds
+string GDS_FILE ../gds/apb_sys_0.gds
 string GDS_END 55246910
 string GDS_START 882196
 << end >>

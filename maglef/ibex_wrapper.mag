@@ -660,7 +660,7 @@ port 154 nsew ground bidirectional
 string LEFclass BLOCK
 string FIXED_BBOX 0 0 120000 160000
 string LEFview TRUE
-string GDS_FILE /project/openlane/ibex_wrapper/runs/ibex_wrapper/results/magic/ibex_wrapper.gds
+string GDS_FILE ../gds/apb_sys_0.gds
 string GDS_END 51979460
 string GDS_START 1299454
 << end >>
